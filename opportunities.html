@@ -188,12 +188,20 @@ document.getElementById('sector-filter').addEventListener('change', renderGrid);
 document.getElementById('search-input').addEventListener('input', renderGrid);
 
 // ── Fetch from Google Sheets ──
-async function loadOpportunities() {
-  try {
-    const res  = await fetch(SHEET_URL);
-    const data = await res.json();
-    allOpps    = data.opportunities || [];
+// ── JSONP loader — bypasses CORS completely ──
+function loadOpportunities() {
+  const script = document.createElement('script');
+  script.src = SHEET_URL + '?callback=handleData';
+  script.onerror = function() {
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('error-state').classList.remove('hidden');
+  };
+  document.head.appendChild(script);
+}
 
+function handleData(data) {
+    try {
+    allOpps = data.opportunities || [];
     document.getElementById('loading').classList.add('hidden');
     populateSectorFilter(allOpps);
     renderGrid();
