@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sign In — GrantAgent Africa</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --gold:#c9a961; --bg:#0f0f0f; --card:#1a1a1a; --border:#2a2a2a; --muted:#9a9a9a; --fg:#f5f5f5; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--fg); }
+  .font-serif { font-family:'Fraunces',serif; }
+  .text-gold { color:var(--gold); }
+  .bg-gold { background:var(--gold); }
+  .input-field {
+    width:100%; background:#111; border:1px solid var(--border);
+    color:var(--fg); padding:0.75rem 1rem; border-radius:0.5rem;
+    font-size:0.875rem; outline:none; transition:border-color 0.15s;
+  }
+  .input-field:focus { border-color:var(--gold); }
+  .btn-gold {
+    width:100%; background:var(--gold); color:#1a1a1a;
+    font-weight:700; padding:0.85rem; border-radius:0.5rem;
+    font-size:0.95rem; border:none; cursor:pointer;
+    transition:opacity 0.15s; letter-spacing:0.01em;
+  }
+  .btn-gold:hover { opacity:0.88; }
+  .tab-btn { padding:0.6rem 1.5rem; border-radius:0.375rem; font-size:0.875rem; font-weight:600; cursor:pointer; border:none; transition:all 0.15s; }
+  .tab-active { background:var(--gold); color:#1a1a1a; }
+  .tab-inactive { background:transparent; color:var(--muted); }
+  .tab-inactive:hover { color:var(--fg); }
+  .error-msg { color:#f87171; font-size:0.8rem; margin-top:0.4rem; display:none; }
+  .success-msg { color:#4ade80; font-size:0.8rem; margin-top:0.4rem; display:none; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center px-4">
+
+<!-- Background glow -->
+<div style="position:fixed;top:0;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(201,169,97,0.08) 0%,transparent 70%);pointer-events:none;"></div>
+
+<!-- Logo -->
+<a href="login.html" class="font-serif text-2xl font-semibold mb-10">
+  Grant<span class="text-gold">Agent</span> Africa
+</a>
+
+<!-- Card -->
+<div style="width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:2rem;">
+
+  <!-- Tabs -->
+  <div style="display:flex;gap:0.5rem;background:#111;border-radius:0.5rem;padding:0.25rem;margin-bottom:1.75rem;">
+    <button class="tab-btn tab-active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+    <button class="tab-btn tab-inactive" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+  </div>
+
+  <!-- SIGN IN FORM -->
+  <div id="form-signin">
+    <h2 class="font-serif text-2xl mb-1">Welcome back</h2>
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1.5rem;">Sign in to access verified grants and jobs.</p>
+
+    <div style="margin-bottom:1rem;">
+      <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:0.4rem;">Email address</label>
+      <input type="email" id="signin-email" class="input-field" placeholder="you@organisation.com" />
+    </div>
+    <div style="margin-bottom:0.5rem;">
+      <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:0.4rem;">Password</label>
+      <input type="password" id="signin-password" class="input-field" placeholder="••••••••" />
+    </div>
+    <div id="signin-error" class="error-msg">Incorrect email or password. Please try again.</div>
+    <div style="text-align:right;margin-bottom:1.25rem;">
+      <a href="#" onclick="showForgot()" style="font-size:0.8rem;color:var(--gold);text-decoration:none;">Forgot password?</a>
+    </div>
+    <button class="btn-gold" onclick="handleSignIn()">Sign In</button>
+    <p style="text-align:center;font-size:0.8rem;color:var(--muted);margin-top:1.25rem;">
+      Don't have an account?
+      <a href="#" onclick="switchTab('signup')" style="color:var(--gold);text-decoration:none;">Create one free</a>
+    </p>
+  </div>
+
+  <!-- SIGN UP FORM -->
+  <div id="form-signup" style="display:none;">
+    <h2 class="font-serif text-2xl mb-1">Create your account</h2>
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1.5rem;">Free access to verified East Africa grants and jobs.</p>
+
+    <div style="margin-bottom:1rem;">
+      <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:0.4rem;">Organisation name</label>
+      <input type="text" id="signup-org" class="input-field" placeholder="e.g. Innovate Kenya Ltd" />
+    </div>
+    <div style="margin-bottom:1rem;">
+      <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:0.4rem;">Email address</label>
+      <input type="email" id="signup-email" class="input-field" placeholder="you@organisation.com" />
+    </div>
+    <div style="margin-bottom:1rem;">
+      <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:0.4rem;">Sector</label>
+      <select id="signup-sector" class="input-field" style="cursor:pointer;">
+        <option value="">Select your sector…</option>
+        <option>Agri-tech</option><option>Fintech</option><option>Health-tech</option>
+        <option>EdTech</option><option>Clean Energy</option><option>NGO / Non-profit</option>
+        <option>Youth</option><option>STEM</option><option>Community Support</option>
+        <option>Agriculture</option><option>Health</option><option>Education</option>
+        <option>Finance</option><option>All Sectors</option>
+      </select>
+    </div>
+    <div style="margin-bottom:0.5rem;">
+      <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:0.4rem;">Password</label>
+      <input type="password" id="signup-password" class="input-field" placeholder="Min. 8 characters" />
+    </div>
+    <div id="signup-error" class="error-msg"></div>
+    <div id="signup-success" class="success-msg">Account created! Signing you in…</div>
+    <button class="btn-gold" style="margin-top:1rem;" onclick="handleSignUp()">Create Account & Continue</button>
+    <p style="text-align:center;font-size:0.8rem;color:var(--muted);margin-top:1.25rem;">
+      Already have an account?
+      <a href="#" onclick="switchTab('signin')" style="color:var(--gold);text-decoration:none;">Sign in</a>
+    </p>
+  </div>
+
+</div>
+
+<!-- Forgot password modal -->
+<div id="forgot-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:50;align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:2rem;width:100%;max-width:380px;margin:0 1rem;">
+    <h3 class="font-serif" style="font-size:1.3rem;margin-bottom:0.5rem;">Reset password</h3>
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1.25rem;">Enter your email and we'll send reset instructions.</p>
+    <input type="email" id="forgot-email" class="input-field" placeholder="you@organisation.com" style="margin-bottom:1rem;" />
+    <div id="forgot-success" class="success-msg" style="margin-bottom:0.75rem;">If that email exists, a reset link has been sent.</div>
+    <div style="display:flex;gap:0.75rem;">
+      <button onclick="hideForgot()" style="flex:1;padding:0.75rem;border-radius:0.5rem;border:1px solid var(--border);background:transparent;color:var(--fg);cursor:pointer;font-size:0.875rem;">Cancel</button>
+      <button onclick="handleForgot()" style="flex:1;background:var(--gold);color:#1a1a1a;font-weight:700;padding:0.75rem;border-radius:0.5rem;border:none;cursor:pointer;font-size:0.875rem;">Send Link</button>
+    </div>
+  </div>
+</div>
+
+<p style="color:var(--muted);font-size:0.75rem;margin-top:2rem;text-align:center;">
+  © 2026 GrantAgent Africa · Free for East African organisations
+</p>
+
+<script>
+// ── Simple session storage auth (no backend needed for demo) ──
+// In production this would connect to a real auth service.
+
+const STORAGE_KEY = 'ga_users';
+const SESSION_KEY = 'ga_session';
+
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+  catch { return {}; }
+}
+
+function saveUsers(users) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+}
+
+function setSession(email, org, sector) {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ email, org, sector, time: Date.now() }));
+}
+
+// If already logged in, go straight to homepage
+(function checkSession() {
+  const s = sessionStorage.getItem(SESSION_KEY);
+  if (s) window.location.href = 'index.html';
+})();
+
+function switchTab(tab) {
+  const isSignin = tab === 'signin';
+  document.getElementById('form-signin').style.display = isSignin ? '' : 'none';
+  document.getElementById('form-signup').style.display = isSignin ? 'none' : '';
+  document.getElementById('tab-signin').className = 'tab-btn ' + (isSignin ? 'tab-active' : 'tab-inactive');
+  document.getElementById('tab-signup').className = 'tab-btn ' + (isSignin ? 'tab-inactive' : 'tab-active');
+  document.getElementById('signin-error').style.display = 'none';
+  document.getElementById('signup-error').style.display = 'none';
+}
+
+function handleSignIn() {
+  const email    = document.getElementById('signin-email').value.trim().toLowerCase();
+  const password = document.getElementById('signin-password').value;
+  const errEl    = document.getElementById('signin-error');
+  errEl.style.display = 'none';
+
+  if (!email || !password) { errEl.textContent = 'Please fill in both fields.'; errEl.style.display = 'block'; return; }
+
+  const users = getUsers();
+  if (!users[email] || users[email].password !== btoa(password)) {
+    errEl.style.display = 'block'; return;
+  }
+  setSession(email, users[email].org, users[email].sector);
+  window.location.href = 'index.html';
+}
+
+function handleSignUp() {
+  const org      = document.getElementById('signup-org').value.trim();
+  const email    = document.getElementById('signup-email').value.trim().toLowerCase();
+  const sector   = document.getElementById('signup-sector').value;
+  const password = document.getElementById('signup-password').value;
+  const errEl    = document.getElementById('signup-error');
+  const okEl     = document.getElementById('signup-success');
+  errEl.style.display = 'none'; okEl.style.display = 'none';
+
+  if (!org)      { errEl.textContent = 'Please enter your organisation name.'; errEl.style.display = 'block'; return; }
+  if (!email || !email.includes('@')) { errEl.textContent = 'Please enter a valid email.'; errEl.style.display = 'block'; return; }
+  if (!sector)   { errEl.textContent = 'Please select your sector.'; errEl.style.display = 'block'; return; }
+  if (password.length < 8) { errEl.textContent = 'Password must be at least 8 characters.'; errEl.style.display = 'block'; return; }
+
+  const users = getUsers();
+  if (users[email]) { errEl.textContent = 'An account with this email already exists. Sign in instead.'; errEl.style.display = 'block'; return; }
+
+  users[email] = { org, sector, password: btoa(password) };
+  saveUsers(users);
+  okEl.style.display = 'block';
+  setTimeout(() => {
+    setSession(email, org, sector);
+    window.location.href = 'index.html';
+  }, 1200);
+}
+
+function showForgot() { document.getElementById('forgot-modal').style.display = 'flex'; }
+function hideForgot() {
+  document.getElementById('forgot-modal').style.display = 'none';
+  document.getElementById('forgot-success').style.display = 'none';
+  document.getElementById('forgot-email').value = '';
+}
+function handleForgot() {
+  document.getElementById('forgot-success').style.display = 'block';
+  setTimeout(hideForgot, 2500);
+}
+
+// Allow Enter key to submit
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const signinVisible = document.getElementById('form-signin').style.display !== 'none';
+  if (signinVisible) handleSignIn(); else handleSignUp();
+});
+</script>
+</body>
+</html>

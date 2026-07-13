@@ -34,6 +34,7 @@
       <a href="index.html#how" class="text-muted hover:text-white">How it works</a>
       <a href="opportunities.html" class="text-muted hover:text-white">Opportunities</a>
       <a href="register.html" class="text-muted hover:text-white">Register</a>
+      <a href="login.html" class="text-muted hover:text-white">Login</a>
     </nav>
     <a href="register.html" class="btn-primary rounded-md px-4 py-2 text-sm font-medium">Register free</a>
   </div>
@@ -62,4 +63,22 @@
     <div class="md:text-right">© 2026 GrantAgent Africa. All opportunities link to original sources.</div>
   </div>
 </footer>
+
+<script>
+(function() {
+  const s = sessionStorage.getItem('ga_session');
+  if (!s) { window.location.href = 'login.html'; return; }
+  const user = JSON.parse(s);
+  document.addEventListener('DOMContentLoaded', function() {
+    const nav = document.querySelector('nav');
+    if (nav && user.org) {
+      const badge = document.createElement('span');
+      badge.style.cssText = 'font-size:0.75rem;color:#c9a961;border:1px solid #2a2a2a;padding:0.3rem 0.75rem;border-radius:9999px;';
+      badge.textContent = '👋 ' + user.org;
+      nav.appendChild(badge);
+    }
+  });
+})();
+</script>
+
 </body></html>

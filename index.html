@@ -34,6 +34,7 @@
       <a href="index.html#how" class="text-muted hover:text-white">How it works</a>
       <a href="opportunities.html" class="text-muted hover:text-white">Opportunities</a>
       <a href="register.html" class="text-muted hover:text-white">Register</a>
+      <a href="login.html" class="text-muted hover:text-white">Login</a>
     </nav>
     <a href="register.html" class="btn-primary rounded-md px-4 py-2 text-sm font-medium">Register free</a>
   </div>
@@ -119,4 +120,36 @@
     <div class="md:text-right">© 2026 GrantAgent Africa. All opportunities link to original sources.</div>
   </div>
 </footer>
+
+<script>
+// ── Auth guard — redirect to login if not signed in ──
+(function() {
+  const s = sessionStorage.getItem('ga_session');
+  if (!s) { window.location.href = 'login.html'; return; }
+  const user = JSON.parse(s);
+  // Show user greeting in header
+  document.addEventListener('DOMContentLoaded', function() {
+    const nav = document.querySelector('nav');
+    if (nav && user.org) {
+      const greeting = document.createElement('span');
+      greeting.style.cssText = 'font-size:0.75rem;color:#c9a961;border:1px solid #2a2a2a;padding:0.3rem 0.75rem;border-radius:9999px;';
+      greeting.textContent = '👋 ' + user.org;
+      nav.appendChild(greeting);
+    }
+    // Update register button to show Sign Out
+    const regBtn = document.querySelector('a[href="register.html"].btn-primary');
+    if (regBtn) {
+      const signOutBtn = document.createElement('button');
+      signOutBtn.textContent = 'Sign Out';
+      signOutBtn.style.cssText = 'background:transparent;border:1px solid #2a2a2a;color:#9a9a9a;padding:0.4rem 1rem;border-radius:0.375rem;font-size:0.875rem;cursor:pointer;';
+      signOutBtn.onclick = function() {
+        sessionStorage.removeItem('ga_session');
+        window.location.href = 'login.html';
+      };
+      regBtn.parentNode.insertBefore(signOutBtn, regBtn);
+    }
+  });
+})();
+</script>
+
 </body></html>
