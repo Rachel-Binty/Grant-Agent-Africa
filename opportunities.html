@@ -117,7 +117,7 @@ function buildCard(o) {
   const urgent = dl <= 30;
   const isGrant = o.type === 'grant';
   return `
-    <article class="flex flex-col rounded-xl border border-[#2a2a2a] bg-card p-6">
+    <article class="flex flex-col rounded-xl border border-[#2a2a2a] bg-card p-6" data-sector="${o.sector}">
       <div class="flex items-center justify-between gap-3">
         <span class="rounded-full px-2.5 py-0.5 text-xs font-medium uppercase ${isGrant ? 'bg-yellow-500/15 text-gold' : 'bg-white/10 text-white'}">${o.type}</span>
         <span class="text-xs font-medium ${urgent ? 'text-red-400' : 'text-[#9a9a9a]'}">${dl === 0 ? 'Closing today' : dl + ' days left'}</span>
@@ -162,6 +162,14 @@ function renderGrid() {
     grid.classList.remove('hidden');
     grid.innerHTML = filtered.map(buildCard).join('');
   }
+  // Show related opportunities matched to logged-in user's sector
+  const sess = sessionStorage.getItem('ga_session');
+  if (sess) {
+    try {
+      const user = JSON.parse(sess);
+      // showRelated called after data loads in handleData
+    } catch(e) {}
+  }
 }
 
 function populateSectorFilter(opps) {
@@ -205,6 +213,12 @@ function handleData(data) {
     document.getElementById('loading').classList.add('hidden');
     populateSectorFilter(allOpps);
     renderGrid();
+    // Show related opportunities matched to logged-in user's sector
+    const session = sessionStorage.getItem('ga_session');
+    if (session) {
+      const user = JSON.parse(session);
+      if (user.sector) showRelated(user.sector);
+    }
   } catch (err) {
     console.error('Failed to load opportunities:', err);
     document.getElementById('loading').classList.add('hidden');
@@ -236,7 +250,7 @@ loadOpportunities();
       regBtn.outerHTML = '<button onclick="signOut()" style="background:transparent;border:1px solid #2a2a2a;color:#9a9a9a;padding:0.4rem 1rem;border-radius:0.375rem;font-size:0.875rem;cursor:pointer;">Sign Out</button>';
     }
     // After opportunities load, show "You may also like" based on user sector
-    setTimeout(() => showRelated(user.sector), 3000);
+    // showRelated is called inside handleData after opportunities load
   });
 })();
 
@@ -248,44 +262,61 @@ function signOut() {
 // ── Related opportunities (same sector as logged-in user) ──
 function showRelated(userSector) {
   if (!userSector || userSector === 'All Sectors') return;
-  // Find all opportunity cards in the grid
-  const grid = document.getElementById('grid');
-  if (!grid) return;
-  const allCards = [...grid.querySelectorAll('article[data-sector]')];
-  const related = allCards.filter(c => c.dataset.sector === userSector && c.style.display !== 'none');
+
+  // Filter from the live data array (not DOM — works with Google Sheets data)
+  const related = (allOpps || []).filter(o =>
+    o.sector && o.sector.toLowerCase() === userSector.toLowerCase()
+  );
   if (related.length === 0) return;
 
-  // Remove existing related section if any
+  // Remove existing section if already shown
   const existing = document.getElementById('related-section');
   if (existing) existing.remove();
 
-  // Build related section
+  const grid = document.getElementById('grid');
+  if (!grid) return;
+
   const section = document.createElement('div');
   section.id = 'related-section';
-  section.style.cssText = 'margin-top:2.5rem;';
+  section.style.cssText = 'margin-top:3rem;padding-top:2rem;border-top:1px solid #2a2a2a;';
   section.innerHTML = `
-    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-      <span style="width:3px;height:1.25rem;background:#c9a961;border-radius:2px;display:inline-block;"></span>
-      <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.2em;color:#c9a961;font-weight:600;">
-        Matched to your sector — ${userSector}
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+      <span style="width:3px;height:1.25rem;background:#c9a961;border-radius:2px;display:inline-block;flex-shrink:0;"></span>
+      <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.2em;color:#c9a961;font-weight:600;margin:0;">
+        Matched to your sector &mdash; ${userSector}
       </p>
     </div>
-    <p style="color:#9a9a9a;font-size:0.85rem;margin-bottom:1.25rem;">
-      Based on your registered sector, these opportunities are most relevant to you.
-      You will receive email alerts and deadline reminders for these automatically.
+    <p style="color:#9a9a9a;font-size:0.85rem;margin-bottom:1.25rem;max-width:600px;">
+      These opportunities match your registered sector. You will receive email alerts
+      and deadline reminders for listings like these automatically.
     </p>
-    <div id="related-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;"></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;">
+      ${related.slice(0, 4).map(o => {
+        const dl = daysLeft(o.deadline);
+        const urgent = dl <= 30;
+        const isGrant = o.type === 'grant';
+        return `<article class="flex flex-col rounded-xl p-6" style="border:1px solid rgba(201,169,97,0.35);background:#1a1a1a;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+            <span style="border-radius:9999px;padding:0.2rem 0.6rem;font-size:0.65rem;font-weight:600;text-transform:uppercase;${isGrant ? 'background:rgba(234,179,8,0.15);color:#c9a961;' : 'background:rgba(255,255,255,0.1);color:#f5f5f5;'}">${o.type}</span>
+            <span style="font-size:0.75rem;font-weight:500;${urgent ? 'color:#f87171;' : 'color:#9a9a9a;'}">${dl === 0 ? 'Closing today' : dl + ' days left'}</span>
+          </div>
+          <h3 style="margin-top:0.75rem;font-family:Fraunces,serif;font-size:1.1rem;line-height:1.35;">${o.title}</h3>
+          <p style="margin-top:0.25rem;font-size:0.8rem;color:#9a9a9a;">${o.organisation} &middot; ${o.country}</p>
+          <dl style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:0.25rem 0.5rem;font-size:0.75rem;">
+            <dt style="color:#9a9a9a;">Amount</dt><dd style="text-align:right;">${o.amount}</dd>
+            <dt style="color:#9a9a9a;">Deadline</dt><dd style="text-align:right;">${fmtDate(o.deadline)}</dd>
+          </dl>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #2a2a2a;display:flex;justify-content:flex-end;">
+            <a href="${o.url}" target="_blank" rel="noopener noreferrer"
+              style="background:#c9a961;color:#1a1a1a;font-weight:600;padding:0.4rem 0.9rem;border-radius:0.375rem;font-size:0.75rem;text-decoration:none;">
+              View original ↗
+            </a>
+          </div>
+        </article>`;
+      }).join('')}
+    </div>
   `;
   grid.parentNode.insertBefore(section, grid.nextSibling);
-
-  // Clone up to 4 matching cards into the related grid
-  const relatedGrid = section.querySelector('#related-grid');
-  related.slice(0, 4).forEach(card => {
-    const clone = card.cloneNode(true);
-    // Add a subtle highlight border
-    clone.style.borderColor = 'rgba(201,169,97,0.35)';
-    relatedGrid.appendChild(clone);
-  });
 }
 </script>
 
