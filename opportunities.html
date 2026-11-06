@@ -43,7 +43,6 @@
 </section>
 
 <section class="mx-auto max-w-6xl px-6 py-10">
-  <!-- Filters -->
   <div class="flex flex-wrap items-center gap-3 rounded-xl border border-[#2a2a2a] bg-card p-4">
     <div class="inline-flex rounded-md border border-[#2a2a2a]" id="type-filter">
       <button data-type="all"   class="px-4 py-2 text-sm btn-primary rounded-l-md">All</button>
@@ -57,18 +56,14 @@
       class="flex-1 min-w-[200px] rounded-md border border-[#2a2a2a] bg-black px-3 py-2 text-sm text-white"/>
   </div>
 
-  <!-- Loading spinner -->
   <div id="loading"><div class="spinner"></div><p class="text-center text-[#9a9a9a] text-sm">Loading opportunities…</p></div>
 
-  <!-- Error state -->
   <div id="error-state" class="hidden mt-10 rounded-xl border border-dashed border-[#2a2a2a] p-10 text-center text-[#9a9a9a]">
     Could not load opportunities. Please try refreshing the page.
   </div>
 
-  <!-- Grid -->
   <div id="grid" class="hidden mt-6 grid gap-4 md:grid-cols-2"></div>
 
-  <!-- No results -->
   <div id="no-results" class="hidden mt-10 rounded-xl border border-dashed border-[#2a2a2a] p-10 text-center text-[#9a9a9a]">
     No open opportunities match these filters right now.
     <a href="register.html" class="text-gold underline ml-1">Register</a> to get alerts when new ones are added.
@@ -94,7 +89,7 @@
 </footer>
 
 <script>
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwF0MKyIkv84GwhB-5KzSAJwnt_oR2nFmar0jS7ThxYV2FuwOH13YuUIQv60IXbk0SCoQ/exec';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxn_ZMzYFol5y7NKTYzSM9EYiRENBTyB8JTt2fyAGt_tsenHNzT3mUaVLWNv0jDpAnz/exec';
 
 document.getElementById('yr').textContent = new Date().getFullYear();
 
@@ -138,17 +133,14 @@ function buildCard(o) {
 function renderGrid() {
   const sector = document.getElementById('sector-filter').value;
   const q      = document.getElementById('search-input').value.toLowerCase();
-
   const filtered = allOpps.filter(o => {
     if (activeType !== 'all' && o.type !== activeType) return false;
     if (sector !== 'All sectors' && o.sector !== sector) return false;
     if (q && !`${o.title} ${o.organisation} ${o.country}`.toLowerCase().includes(q)) return false;
     return true;
   });
-
   const grid = document.getElementById('grid');
   const noRes = document.getElementById('no-results');
-
   if (!filtered.length) {
     grid.innerHTML = '';
     grid.classList.add('hidden');
@@ -204,7 +196,6 @@ function handleData(data) {
       if (user.sector) showRelated(user.sector);
     }
   } catch (err) {
-    console.error('Failed to load opportunities:', err);
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('error-state').classList.remove('hidden');
   }
@@ -258,10 +249,6 @@ function showRelated(userSector) {
         Matched to your sector &mdash; ${userSector}
       </p>
     </div>
-    <p style="color:#9a9a9a;font-size:0.85rem;margin-bottom:1.25rem;max-width:600px;">
-      These opportunities match your registered sector. You will receive email alerts
-      and deadline reminders for listings like these automatically.
-    </p>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;">
       ${related.slice(0, 4).map(o => {
         const dl = daysLeft(o.deadline);
