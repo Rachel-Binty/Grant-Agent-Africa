@@ -35,24 +35,19 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center px-4">
 
-<!-- Background glow -->
 <div style="position:fixed;top:0;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(201,169,97,0.08) 0%,transparent 70%);pointer-events:none;"></div>
 
-<!-- Logo -->
 <a href="login.html" class="font-serif text-2xl font-semibold mb-10">
   Grant<span class="text-gold">Agent</span> Africa
 </a>
 
-<!-- Card -->
 <div style="width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:2rem;">
 
-  <!-- Tabs -->
   <div style="display:flex;gap:0.5rem;background:#111;border-radius:0.5rem;padding:0.25rem;margin-bottom:1.75rem;">
     <button class="tab-btn tab-active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
     <button class="tab-btn tab-inactive" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
   </div>
 
-  <!-- SIGN IN FORM -->
   <div id="form-signin">
     <h2 class="font-serif text-2xl mb-1">Welcome back</h2>
     <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1.5rem;">Sign in to access verified grants and jobs.</p>
@@ -76,7 +71,6 @@
     </p>
   </div>
 
-  <!-- SIGN UP FORM -->
   <div id="form-signup" style="display:none;">
     <h2 class="font-serif text-2xl mb-1">Create your account</h2>
     <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1.5rem;">Free access to verified East Africa grants and jobs.</p>
@@ -115,7 +109,6 @@
 
 </div>
 
-<!-- Forgot password modal -->
 <div id="forgot-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:50;align-items:center;justify-content:center;">
   <div style="background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:2rem;width:100%;max-width:380px;margin:0 1rem;">
     <h3 class="font-serif" style="font-size:1.3rem;margin-bottom:0.5rem;">Reset password</h3>
@@ -134,9 +127,6 @@
 </p>
 
 <script>
-// ── Simple session storage auth (no backend needed for demo) ──
-// In production this would connect to a real auth service.
-
 const STORAGE_KEY = 'ga_users';
 const SESSION_KEY = 'ga_session';
 
@@ -150,12 +140,11 @@ function saveUsers(users) {
 }
 
 function setSession(email, org, sector) {
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ email, org, sector, time: Date.now() }));
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ email, org, sector, time: Date.now() }));
 }
 
-// If already logged in, go straight to homepage
 (function checkSession() {
-  const s = sessionStorage.getItem(SESSION_KEY);
+  const s = localStorage.getItem(SESSION_KEY);
   if (s) window.location.href = 'index.html';
 })();
 
@@ -222,7 +211,6 @@ function handleForgot() {
   setTimeout(hideForgot, 2500);
 }
 
-// Allow Enter key to submit
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   const signinVisible = document.getElementById('form-signin').style.display !== 'none';
