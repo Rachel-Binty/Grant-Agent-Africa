@@ -190,7 +190,7 @@ function handleData(data) {
     document.getElementById('loading').classList.add('hidden');
     populateSectorFilter(allOpps);
     renderGrid();
-    const session = sessionStorage.getItem('ga_session');
+    const session = localStorage.getItem('ga_session');
     if (session) {
       const user = JSON.parse(session);
       if (user.sector) showRelated(user.sector);
@@ -206,7 +206,7 @@ loadOpportunities();
 
 <script>
 (function() {
-  const s = sessionStorage.getItem('ga_session');
+  const s = localStorage.getItem('ga_session');
   if (!s) { window.location.href = 'login.html'; return; }
   const user = JSON.parse(s);
   document.addEventListener('DOMContentLoaded', function() {
@@ -225,7 +225,7 @@ loadOpportunities();
 })();
 
 function signOut() {
-  sessionStorage.removeItem('ga_session');
+  localStorage.removeItem('ga_session');
   window.location.href = 'login.html';
 }
 
