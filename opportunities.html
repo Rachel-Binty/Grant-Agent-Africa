@@ -18,6 +18,15 @@
   .btn-primary:hover { opacity:.9; }
   .spinner { border:3px solid var(--border); border-top-color:var(--gold); border-radius:50%; width:36px; height:36px; animation:spin 0.8s linear infinite; margin:4rem auto; }
   @keyframes spin { to { transform:rotate(360deg); } }
+  .save-btn { background:transparent; border:1px solid #2a2a2a; color:#9a9a9a; padding:0.3rem 0.75rem; border-radius:0.375rem; font-size:0.75rem; cursor:pointer; transition:all 0.15s; }
+  .save-btn:hover { border-color:#c9a961; color:#c9a961; }
+  .save-btn.saved { border-color:#c9a961; color:#c9a961; background:rgba(201,169,97,0.1); }
+  .reminder-badge { display:inline-block; padding:0.2rem 0.6rem; border-radius:9999px; font-size:0.65rem; font-weight:600; margin-left:0.5rem; }
+  .reminder-urgent { background:rgba(248,113,113,0.15); color:#f87171; }
+  .reminder-soon { background:rgba(251,191,36,0.15); color:#fbbf24; }
+  .reminder-ok { background:rgba(74,222,128,0.15); color:#4ade80; }
+  .tab-nav-btn { padding:0.5rem 1.25rem; border-radius:0.375rem; font-size:0.85rem; font-weight:600; cursor:pointer; border:none; background:transparent; color:#9a9a9a; transition:all 0.15s; }
+  .tab-nav-btn.active { background:#c9a961; color:#1a1a1a; }
 </style>
 </head>
 <body class="min-h-screen">
@@ -25,12 +34,12 @@
 <header class="sticky top-0 z-40 border-b border-[#2a2a2a] bg-black/70 backdrop-blur">
   <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
     <a href="index.html" class="font-serif text-xl font-semibold">Grant<span class="text-gold">Agent</span> Africa</a>
-    <nav class="hidden md:flex items-center gap-8 text-sm">
+    <nav class="hidden md:flex items-center gap-8 text-sm" id="main-nav">
       <a href="index.html#how" class="text-[#9a9a9a] hover:text-white">How it works</a>
       <a href="opportunities.html" class="text-white">Opportunities</a>
       <a href="register.html" class="text-[#9a9a9a] hover:text-white">Register</a>
     </nav>
-    <a href="register.html" class="btn-primary rounded-md px-4 py-2 text-sm font-medium">Register free</a>
+    <a href="register.html" id="reg-btn" class="btn-primary rounded-md px-4 py-2 text-sm font-medium">Register free</a>
   </div>
 </header>
 
@@ -43,30 +52,49 @@
 </section>
 
 <section class="mx-auto max-w-6xl px-6 py-10">
-  <div class="flex flex-wrap items-center gap-3 rounded-xl border border-[#2a2a2a] bg-card p-4">
-    <div class="inline-flex rounded-md border border-[#2a2a2a]" id="type-filter">
-      <button data-type="all"   class="px-4 py-2 text-sm btn-primary rounded-l-md">All</button>
-      <button data-type="grant" class="px-4 py-2 text-sm text-[#9a9a9a] hover:text-white">Grants</button>
-      <button data-type="job"   class="px-4 py-2 text-sm text-[#9a9a9a] hover:text-white rounded-r-md">Jobs</button>
+
+  <!-- Page tabs: All Opportunities / Saved Grants -->
+  <div class="flex gap-2 mb-6">
+    <button class="tab-nav-btn active" id="tab-all" onclick="showTab('all')">All Opportunities</button>
+    <button class="tab-nav-btn" id="tab-saved" onclick="showTab('saved')">
+      Saved Grants <span id="saved-count" style="background:#2a2a2a;padding:0.1rem 0.5rem;border-radius:9999px;font-size:0.7rem;margin-left:0.3rem;">0</span>
+    </button>
+  </div>
+
+  <!-- All Opportunities tab -->
+  <div id="all-tab">
+    <div class="flex flex-wrap items-center gap-3 rounded-xl border border-[#2a2a2a] bg-card p-4">
+      <div class="inline-flex rounded-md border border-[#2a2a2a]" id="type-filter">
+        <button data-type="all"   class="px-4 py-2 text-sm btn-primary rounded-l-md">All</button>
+        <button data-type="grant" class="px-4 py-2 text-sm text-[#9a9a9a] hover:text-white">Grants</button>
+        <button data-type="job"   class="px-4 py-2 text-sm text-[#9a9a9a] hover:text-white rounded-r-md">Jobs</button>
+      </div>
+      <select id="sector-filter" class="rounded-md border border-[#2a2a2a] bg-black px-3 py-2 text-sm text-white">
+        <option>All sectors</option>
+      </select>
+      <input id="search-input" placeholder="Search title, organisation, country…"
+        class="flex-1 min-w-[200px] rounded-md border border-[#2a2a2a] bg-black px-3 py-2 text-sm text-white"/>
     </div>
-    <select id="sector-filter" class="rounded-md border border-[#2a2a2a] bg-black px-3 py-2 text-sm text-white">
-      <option>All sectors</option>
-    </select>
-    <input id="search-input" placeholder="Search title, organisation, country…"
-      class="flex-1 min-w-[200px] rounded-md border border-[#2a2a2a] bg-black px-3 py-2 text-sm text-white"/>
+
+    <div id="loading"><div class="spinner"></div><p class="text-center text-[#9a9a9a] text-sm">Loading opportunities…</p></div>
+    <div id="error-state" class="hidden mt-10 rounded-xl border border-dashed border-[#2a2a2a] p-10 text-center text-[#9a9a9a]">Could not load opportunities. Please try refreshing the page.</div>
+    <div id="grid" class="hidden mt-6 grid gap-4 md:grid-cols-2"></div>
+    <div id="no-results" class="hidden mt-10 rounded-xl border border-dashed border-[#2a2a2a] p-10 text-center text-[#9a9a9a]">
+      No open opportunities match these filters right now.
+      <a href="register.html" class="text-gold underline ml-1">Register</a> to get alerts when new ones are added.
+    </div>
   </div>
 
-  <div id="loading"><div class="spinner"></div><p class="text-center text-[#9a9a9a] text-sm">Loading opportunities…</p></div>
-
-  <div id="error-state" class="hidden mt-10 rounded-xl border border-dashed border-[#2a2a2a] p-10 text-center text-[#9a9a9a]">
-    Could not load opportunities. Please try refreshing the page.
-  </div>
-
-  <div id="grid" class="hidden mt-6 grid gap-4 md:grid-cols-2"></div>
-
-  <div id="no-results" class="hidden mt-10 rounded-xl border border-dashed border-[#2a2a2a] p-10 text-center text-[#9a9a9a]">
-    No open opportunities match these filters right now.
-    <a href="register.html" class="text-gold underline ml-1">Register</a> to get alerts when new ones are added.
+  <!-- Saved Grants tab -->
+  <div id="saved-tab" style="display:none;">
+    <div id="reminders-box" class="mb-6 rounded-xl border border-[#c9a961]/30 bg-[#1a1a1a] p-5" style="display:none;">
+      <p class="text-xs uppercase tracking-widest text-gold mb-3">Deadline Reminders</p>
+      <div id="reminders-list"></div>
+    </div>
+    <div id="saved-grid" class="grid gap-4 md:grid-cols-2"></div>
+    <div id="no-saved" class="hidden mt-10 rounded-xl border border-dashed border-[#2a2a2a] p-10 text-center text-[#9a9a9a]">
+      You have not saved any grants yet. Click <strong style="color:#c9a961;">Save</strong> on any opportunity to track it here.
+    </div>
   </div>
 
   <div class="mt-12 rounded-xl border border-[#2a2a2a] bg-card/60 p-6">
@@ -90,11 +118,44 @@
 
 <script>
 const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxn_ZMzYFol5y7NKTYzSM9EYiRENBTyB8JTt2fyAGt_tsenHNzT3mUaVLWNv0jDpAnz/exec';
+const SAVED_KEY = 'ga_saved';
 
 document.getElementById('yr').textContent = new Date().getFullYear();
 
 let allOpps = [];
 let activeType = 'all';
+
+function getSaved() {
+  try { return JSON.parse(localStorage.getItem(SAVED_KEY) || '[]'); } catch { return []; }
+}
+function saveSaved(arr) { localStorage.setItem(SAVED_KEY, JSON.stringify(arr)); }
+
+function isSaved(title) { return getSaved().includes(title); }
+
+function toggleSave(title) {
+  let saved = getSaved();
+  if (saved.includes(title)) {
+    saved = saved.filter(t => t !== title);
+  } else {
+    saved.push(title);
+  }
+  saveSaved(saved);
+  updateSavedCount();
+  renderGrid();
+  if (document.getElementById('saved-tab').style.display !== 'none') renderSaved();
+}
+
+function updateSavedCount() {
+  document.getElementById('saved-count').textContent = getSaved().length;
+}
+
+function showTab(tab) {
+  document.getElementById('all-tab').style.display = tab === 'all' ? '' : 'none';
+  document.getElementById('saved-tab').style.display = tab === 'saved' ? '' : 'none';
+  document.getElementById('tab-all').className = 'tab-nav-btn' + (tab === 'all' ? ' active' : '');
+  document.getElementById('tab-saved').className = 'tab-nav-btn' + (tab === 'saved' ? ' active' : '');
+  if (tab === 'saved') renderSaved();
+}
 
 function daysLeft(deadline) {
   return Math.max(0, Math.ceil((new Date(deadline) - Date.now()) / 86400000));
@@ -103,12 +164,19 @@ function fmtDate(str) {
   return new Date(str).toLocaleDateString('en-GB', { year:'numeric', month:'short', day:'numeric' });
 }
 
-function buildCard(o) {
+function reminderBadge(dl) {
+  if (dl <= 7)  return `<span class="reminder-badge reminder-urgent">Closing in ${dl} days!</span>`;
+  if (dl <= 30) return `<span class="reminder-badge reminder-soon">${dl} days left</span>`;
+  return `<span class="reminder-badge reminder-ok">${dl} days left</span>`;
+}
+
+function buildCard(o, savedView) {
   const dl = daysLeft(o.deadline);
   const urgent = dl <= 30;
   const isGrant = o.type === 'grant';
+  const saved = isSaved(o.title);
   return `
-    <article class="flex flex-col rounded-xl border border-[#2a2a2a] bg-card p-6" data-sector="${o.sector}">
+    <article class="flex flex-col rounded-xl border border-[#2a2a2a] bg-card p-6">
       <div class="flex items-center justify-between gap-3">
         <span class="rounded-full px-2.5 py-0.5 text-xs font-medium uppercase ${isGrant ? 'bg-yellow-500/15 text-gold' : 'bg-white/10 text-white'}">${o.type}</span>
         <span class="text-xs font-medium ${urgent ? 'text-red-400' : 'text-[#9a9a9a]'}">${dl === 0 ? 'Closing today' : dl + ' days left'}</span>
@@ -121,7 +189,9 @@ function buildCard(o) {
         <dt class="text-[#9a9a9a]">Deadline</dt><dd class="text-right">${fmtDate(o.deadline)}</dd>
       </dl>
       <div class="mt-5 flex items-center justify-between border-t border-[#2a2a2a] pt-4">
-        <span class="text-xs text-[#9a9a9a]">Verified listing</span>
+        <button class="save-btn ${saved ? 'saved' : ''}" onclick="toggleSave('${o.title.replace(/'/g,"\\'")}')">
+          ${saved ? '★ Saved' : '☆ Save'}
+        </button>
         <a href="${o.url}" target="_blank" rel="noopener noreferrer"
           class="btn-primary inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold">
           View original ↗
@@ -148,7 +218,41 @@ function renderGrid() {
   } else {
     noRes.classList.add('hidden');
     grid.classList.remove('hidden');
-    grid.innerHTML = filtered.map(buildCard).join('');
+    grid.innerHTML = filtered.map(o => buildCard(o, false)).join('');
+  }
+}
+
+function renderSaved() {
+  const saved = getSaved();
+  const savedOpps = allOpps.filter(o => saved.includes(o.title));
+  const grid = document.getElementById('saved-grid');
+  const noSaved = document.getElementById('no-saved');
+  const remBox = document.getElementById('reminders-box');
+  const remList = document.getElementById('reminders-list');
+
+  if (!savedOpps.length) {
+    grid.innerHTML = '';
+    noSaved.classList.remove('hidden');
+    remBox.style.display = 'none';
+    return;
+  }
+
+  noSaved.classList.add('hidden');
+  grid.innerHTML = savedOpps.map(o => buildCard(o, true)).join('');
+
+  // Show reminders
+  const urgent = savedOpps.filter(o => daysLeft(o.deadline) <= 30).sort((a,b) => daysLeft(a.deadline) - daysLeft(b.deadline));
+  if (urgent.length) {
+    remBox.style.display = '';
+    remList.innerHTML = urgent.map(o => {
+      const dl = daysLeft(o.deadline);
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #2a2a2a;">
+        <span style="font-size:0.85rem;">${o.title}</span>
+        ${reminderBadge(dl)}
+      </div>`;
+    }).join('');
+  } else {
+    remBox.style.display = 'none';
   }
 }
 
@@ -189,6 +293,7 @@ function handleData(data) {
     allOpps = data.opportunities || [];
     document.getElementById('loading').classList.add('hidden');
     populateSectorFilter(allOpps);
+    updateSavedCount();
     renderGrid();
     const session = localStorage.getItem('ga_session');
     if (session) {
@@ -210,15 +315,15 @@ loadOpportunities();
   if (!s) { window.location.href = 'login.html'; return; }
   const user = JSON.parse(s);
   document.addEventListener('DOMContentLoaded', function() {
-    const nav = document.querySelector('nav');
+    const nav = document.getElementById('main-nav');
     if (nav && user.org) {
       const badge = document.createElement('span');
       badge.style.cssText = 'font-size:0.75rem;color:#c9a961;border:1px solid #2a2a2a;padding:0.3rem 0.75rem;border-radius:9999px;';
       badge.textContent = '👋 ' + user.org;
       nav.appendChild(badge);
     }
-    const regBtn = document.querySelector('a[href="register.html"]');
-    if (regBtn && regBtn.classList.contains('btn-primary')) {
+    const regBtn = document.getElementById('reg-btn');
+    if (regBtn) {
       regBtn.outerHTML = '<button onclick="signOut()" style="background:transparent;border:1px solid #2a2a2a;color:#9a9a9a;padding:0.4rem 1rem;border-radius:0.375rem;font-size:0.875rem;cursor:pointer;">Sign Out</button>';
     }
   });
@@ -246,33 +351,11 @@ function showRelated(userSector) {
     <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
       <span style="width:3px;height:1.25rem;background:#c9a961;border-radius:2px;display:inline-block;flex-shrink:0;"></span>
       <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.2em;color:#c9a961;font-weight:600;margin:0;">
-        Matched to your sector &mdash; ${userSector}
+        Matched to your sector — ${userSector}
       </p>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;">
-      ${related.slice(0, 4).map(o => {
-        const dl = daysLeft(o.deadline);
-        const urgent = dl <= 30;
-        const isGrant = o.type === 'grant';
-        return `<article class="flex flex-col rounded-xl p-6" style="border:1px solid rgba(201,169,97,0.35);background:#1a1a1a;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
-            <span style="border-radius:9999px;padding:0.2rem 0.6rem;font-size:0.65rem;font-weight:600;text-transform:uppercase;${isGrant ? 'background:rgba(234,179,8,0.15);color:#c9a961;' : 'background:rgba(255,255,255,0.1);color:#f5f5f5;'}">${o.type}</span>
-            <span style="font-size:0.75rem;font-weight:500;${urgent ? 'color:#f87171;' : 'color:#9a9a9a;'}">${dl === 0 ? 'Closing today' : dl + ' days left'}</span>
-          </div>
-          <h3 style="margin-top:0.75rem;font-family:Fraunces,serif;font-size:1.1rem;line-height:1.35;">${o.title}</h3>
-          <p style="margin-top:0.25rem;font-size:0.8rem;color:#9a9a9a;">${o.organisation} &middot; ${o.country}</p>
-          <dl style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:0.25rem 0.5rem;font-size:0.75rem;">
-            <dt style="color:#9a9a9a;">Amount</dt><dd style="text-align:right;">${o.amount}</dd>
-            <dt style="color:#9a9a9a;">Deadline</dt><dd style="text-align:right;">${fmtDate(o.deadline)}</dd>
-          </dl>
-          <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #2a2a2a;display:flex;justify-content:flex-end;">
-            <a href="${o.url}" target="_blank" rel="noopener noreferrer"
-              style="background:#c9a961;color:#1a1a1a;font-weight:600;padding:0.4rem 0.9rem;border-radius:0.375rem;font-size:0.75rem;text-decoration:none;">
-              View original ↗
-            </a>
-          </div>
-        </article>`;
-      }).join('')}
+      ${related.slice(0, 4).map(o => buildCard(o, false)).join('')}
     </div>
   `;
   grid.parentNode.insertBefore(section, grid.nextSibling);
