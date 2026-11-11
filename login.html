@@ -140,7 +140,9 @@ function saveUsers(users) {
 }
 
 function setSession(email, org, sector) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ email, org, sector, time: Date.now() }));
+  const users = JSON.parse(localStorage.getItem('ga_users') || '{}');
+  const u = users[email] || {};
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ email, org, sector, country: u.country || '', stage: u.stage || '', time: Date.now() }));
 }
 
 (function checkSession() {
@@ -191,7 +193,7 @@ function handleSignUp() {
   const users = getUsers();
   if (users[email]) { errEl.textContent = 'An account with this email already exists. Sign in instead.'; errEl.style.display = 'block'; return; }
 
-  users[email] = { org, sector, password: btoa(password) };
+  users[email] = { org, sector, country: '', stage: '', password: btoa(password) };
   saveUsers(users);
   okEl.style.display = 'block';
   setTimeout(() => {
