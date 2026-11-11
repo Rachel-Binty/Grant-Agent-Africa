@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>My Progress Report — GrantAgent Africa</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --gold:#c9a961; --bg:#0f0f0f; --card:#1a1a1a; --border:#2a2a2a; --muted:#9a9a9a; --fg:#f5f5f5; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--fg); }
+  .font-serif { font-family:'Fraunces',serif; }
+  .text-gold { color:var(--gold); }
+  .stat-card { background:var(--card); border:1px solid var(--border); border-radius:1rem; padding:1.5rem; }
+  .stat-num { font-family:'Fraunces',serif; font-size:2.5rem; color:var(--gold); }
+  .stat-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--muted); margin-top:0.25rem; }
+  .section-row { display:flex; align-items:center; justify-content:space-between; padding:0.75rem 0; border-bottom:1px solid var(--border); }
+  .pill { padding:0.2rem 0.7rem; border-radius:9999px; font-size:0.7rem; font-weight:600; }
+  .pill-done { background:rgba(74,222,128,0.15); color:#4ade80; }
+  .pill-todo { background:rgba(154,154,154,0.1); color:#9a9a9a; }
+  .pill-urgent { background:rgba(248,113,113,0.15); color:#f87171; }
+  .pill-soon { background:rgba(251,191,36,0.15); color:#fbbf24; }
+  .progress-ring { width:120px; height:120px; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<header class="sticky top-0 z-40 border-b border-[#2a2a2a] bg-black/70 backdrop-blur">
+  <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+    <a href="index.html" class="font-serif text-xl font-semibold">Grant<span class="text-gold">Agent</span> Africa</a>
+    <nav class="hidden md:flex items-center gap-8 text-sm" id="main-nav">
+      <a href="opportunities.html" class="text-[#9a9a9a] hover:text-white">Opportunities</a>
+      <a href="apply.html" class="text-[#9a9a9a] hover:text-white">Write Application</a>
+      <a href="progress.html" class="text-white">My Progress</a>
+    </nav>
+    <button onclick="signOut()" style="background:transparent;border:1px solid #2a2a2a;color:#9a9a9a;padding:0.4rem 1rem;border-radius:0.375rem;font-size:0.875rem;cursor:pointer;">Sign Out</button>
+  </div>
+</header>
+
+<section class="border-b border-[#2a2a2a]">
+  <div class="mx-auto max-w-5xl px-6 py-12">
+    <p class="text-xs uppercase tracking-[0.22em] text-gold">Dashboard</p>
+    <h1 class="mt-3 font-serif text-4xl md:text-5xl">My Progress Report</h1>
+    <p class="mt-3 text-[#9a9a9a]">A summary of your grants found, deadlines tracked, and application progress.</p>
+  </div>
+</section>
+
+<section class="mx-auto max-w-5xl px-6 py-10">
+
+  <!-- Stat cards -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-saved">0</div>
+      <div class="stat-label">Grants Saved</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-urgent">0</div>
+      <div class="stat-label">Closing Soon</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-sections">0/6</div>
+      <div class="stat-label">Sections Written</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-words">0</div>
+      <div class="stat-label">Words Written</div>
+    </div>
+  </div>
+
+  <!-- Application draft progress -->
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:1.5rem;margin-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <div>
+        <p class="text-xs uppercase tracking-widest text-gold">Application Draft</p>
+        <h2 class="font-serif text-2xl mt-1" id="draft-grant-title">No draft started</h2>
+        <p style="font-size:0.8rem;color:#9a9a9a;margin-top:0.25rem;" id="draft-meta"></p>
+      </div>
+      <a href="apply.html" style="background:#c9a961;color:#1a1a1a;font-weight:700;padding:0.6rem 1.2rem;border-radius:0.5rem;font-size:0.85rem;text-decoration:none;">Continue Writing →</a>
+    </div>
+
+    <div style="background:#111;border-radius:0.5rem;overflow:hidden;height:8px;margin-bottom:1rem;">
+      <div id="draft-bar" style="height:100%;background:#c9a961;border-radius:0.5rem;transition:width 0.4s;width:0%;"></div>
+    </div>
+
+    <div id="sections-list"></div>
+  </div>
+
+  <!-- Saved grants & deadlines -->
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:1.5rem;margin-bottom:1.5rem;">
+    <p class="text-xs uppercase tracking-widest text-gold mb-4">Saved Grants & Deadlines</p>
+    <div id="saved-list">
+      <p style="color:#9a9a9a;font-size:0.875rem;">No grants saved yet. <a href="opportunities.html" style="color:#c9a961;text-decoration:underline;">Browse opportunities</a> and click Save on any grant.</p>
+    </div>
+  </div>
+
+  <!-- Account info -->
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:1.5rem;">
+    <p class="text-xs uppercase tracking-widest text-gold mb-4">Your Account</p>
+    <div id="account-info" style="font-size:0.875rem;line-height:2;color:#9a9a9a;"></div>
+  </div>
+
+</section>
+
+<footer class="mt-24 border-t border-[#2a2a2a]">
+  <div class="mx-auto grid max-w-7xl gap-6 px-6 py-10 text-sm text-[#9a9a9a] md:grid-cols-2">
+    <div>
+      <div class="font-serif text-lg text-white">Grant<span class="text-gold">Agent</span> Africa</div>
+      <p class="mt-2 max-w-md">Verified grants and jobs for East African startups.</p>
+    </div>
+    <div class="md:text-right">© 2026 GrantAgent Africa.</div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  const s = localStorage.getItem('ga_session');
+  if (!s) { window.location.href = 'login.html'; return; }
+  const user = JSON.parse(s);
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const nav = document.getElementById('main-nav');
+    if (nav && user.org) {
+      const badge = document.createElement('span');
+      badge.style.cssText = 'font-size:0.75rem;color:#c9a961;border:1px solid #2a2a2a;padding:0.3rem 0.75rem;border-radius:9999px;';
+      badge.textContent = '👋 ' + user.org;
+      nav.appendChild(badge);
+    }
+
+    // Account info
+    document.getElementById('account-info').innerHTML = `
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:0.5rem;">
+        <span style="color:#9a9a9a;">Organisation</span><span style="color:#f5f5f5;">${user.org || '—'}</span>
+        <span style="color:#9a9a9a;">Email</span><span style="color:#f5f5f5;">${user.email || '—'}</span>
+        <span style="color:#9a9a9a;">Country</span><span style="color:#f5f5f5;">${user.country || '—'}</span>
+        <span style="color:#9a9a9a;">Sector</span><span style="color:#f5f5f5;">${user.sector || '—'}</span>
+        <span style="color:#9a9a9a;">Stage</span><span style="color:#f5f5f5;">${user.stage || '—'}</span>
+      </div>`;
+
+    // Draft progress
+    const draft = JSON.parse(localStorage.getItem('ga_draft') || '{}');
+    const sections = ['Organisation Overview','Problem Statement','Your Solution','Impact & Results','Budget Plan','Team & Capacity'];
+    let filled = 0, totalWords = 0;
+    const rows = sections.map((name, i) => {
+      const val = draft['s' + (i+1)] || '';
+      const done = val.trim().length > 20;
+      if (done) filled++;
+      const words = val.trim() ? val.trim().split(/\s+/).length : 0;
+      totalWords += words;
+      return `<div class="section-row">
+        <span style="font-size:0.875rem;">${name}</span>
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <span style="font-size:0.75rem;color:#9a9a9a;">${words} words</span>
+          <span class="pill ${done ? 'pill-done' : 'pill-todo'}">${done ? '✓ Done' : 'To do'}</span>
+        </div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('sections-list').innerHTML = rows;
+    document.getElementById('draft-bar').style.width = Math.round((filled/6)*100) + '%';
+    document.getElementById('stat-sections').textContent = filled + '/6';
+    document.getElementById('stat-words').textContent = totalWords;
+
+    if (draft.grantTitle) {
+      document.getElementById('draft-grant-title').textContent = draft.grantTitle;
+      if (draft.savedAt) {
+        const d = new Date(draft.savedAt);
+        document.getElementById('draft-meta').textContent = 'Last saved: ' + d.toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      }
+      if (draft.grantDeadline) {
+        const dl = Math.max(0, Math.ceil((new Date(draft.grantDeadline) - Date.now()) / 86400000));
+        document.getElementById('draft-meta').textContent += ' · Deadline in ' + dl + ' days';
+      }
+    }
+
+    // Saved grants
+    const saved = JSON.parse(localStorage.getItem('ga_saved') || '[]');
+    document.getElementById('stat-saved').textContent = saved.length;
+
+    if (saved.length > 0) {
+      document.getElementById('saved-list').innerHTML = saved.map(title => {
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid #2a2a2a;">
+          <span style="font-size:0.875rem;">${title}</span>
+          <span class="pill pill-done">★ Saved</span>
+        </div>`;
+      }).join('') + `<div style="margin-top:0.75rem;"><a href="opportunities.html" style="font-size:0.8rem;color:#c9a961;text-decoration:underline;">View saved grants with deadlines →</a></div>`;
+    }
+
+    // Count urgent (need allOpps — show placeholder if not loaded)
+    document.getElementById('stat-urgent').textContent = '—';
+  });
+})();
+
+function signOut() {
+  localStorage.removeItem('ga_session');
+  window.location.href = 'login.html';
+}
+</script>
+
+</body>
+</html>
