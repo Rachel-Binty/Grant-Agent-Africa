@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Write Grant Application — GrantAgent Africa</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --gold:#c9a961; --bg:#0f0f0f; --card:#1a1a1a; --border:#2a2a2a; --muted:#9a9a9a; --fg:#f5f5f5; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--fg); }
+  .font-serif { font-family:'Fraunces',serif; }
+  .text-gold { color:var(--gold); }
+  .bg-card { background:var(--card); }
+  textarea { width:100%; background:#111; border:1px solid var(--border); color:var(--fg); border-radius:0.5rem; padding:0.75rem 1rem; font-size:0.875rem; outline:none; resize:vertical; min-height:120px; font-family:'Inter',sans-serif; line-height:1.6; }
+  textarea:focus { border-color:var(--gold); }
+  .section-card { background:var(--card); border:1px solid var(--border); border-radius:1rem; padding:1.5rem; margin-bottom:1.5rem; }
+  .section-num { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.2em; color:var(--gold); font-weight:600; }
+  .prompt-box { background:#0a0a0a; border-left:3px solid var(--gold); border-radius:0 0.5rem 0.5rem 0; padding:0.75rem 1rem; margin-bottom:0.75rem; font-size:0.8rem; color:var(--muted); line-height:1.6; }
+  .prompt-box strong { color:#e5e5e5; }
+  .btn-gold { background:var(--gold); color:#1a1a1a; font-weight:700; padding:0.75rem 1.5rem; border-radius:0.5rem; border:none; cursor:pointer; font-size:0.9rem; }
+  .btn-gold:hover { opacity:0.88; }
+  .btn-outline { background:transparent; border:1px solid var(--border); color:var(--muted); padding:0.75rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-size:0.9rem; }
+  .btn-outline:hover { border-color:var(--gold); color:var(--gold); }
+  .saved-toast { position:fixed; bottom:2rem; right:2rem; background:#1a1a1a; border:1px solid #c9a961; color:#c9a961; padding:0.6rem 1.2rem; border-radius:0.5rem; font-size:0.85rem; display:none; z-index:100; }
+  .progress-bar { height:4px; background:var(--border); border-radius:2px; margin-bottom:2rem; }
+  .progress-fill { height:100%; background:var(--gold); border-radius:2px; transition:width 0.3s; }
+  label { font-size:0.8rem; color:var(--muted); display:block; margin-bottom:0.4rem; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<header class="sticky top-0 z-40 border-b border-[#2a2a2a] bg-black/70 backdrop-blur">
+  <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+    <a href="index.html" class="font-serif text-xl font-semibold">Grant<span class="text-gold">Agent</span> Africa</a>
+    <nav class="hidden md:flex items-center gap-8 text-sm" id="main-nav">
+      <a href="opportunities.html" class="text-[#9a9a9a] hover:text-white">Opportunities</a>
+      <a href="apply.html" class="text-white">Write Application</a>
+    </nav>
+    <button onclick="signOut()" style="background:transparent;border:1px solid #2a2a2a;color:#9a9a9a;padding:0.4rem 1rem;border-radius:0.375rem;font-size:0.875rem;cursor:pointer;">Sign Out</button>
+  </div>
+</header>
+
+<section class="border-b border-[#2a2a2a]">
+  <div class="mx-auto max-w-3xl px-6 py-12">
+    <p class="text-xs uppercase tracking-[0.22em] text-gold">Grant Writing Tool</p>
+    <h1 class="mt-3 font-serif text-4xl md:text-5xl">Write your application</h1>
+    <p class="mt-3 text-[#9a9a9a]">Follow the guided prompts for each section. Your draft is saved automatically as you type.</p>
+  </div>
+</section>
+
+<section class="mx-auto max-w-3xl px-6 py-10">
+
+  <!-- Grant selector -->
+  <div class="section-card mb-8">
+    <div class="section-num">Step 0</div>
+    <h2 class="font-serif text-2xl mt-1 mb-4">Which grant are you applying for?</h2>
+    <div style="margin-bottom:1rem;">
+      <label>Grant / opportunity title</label>
+      <input type="text" id="grant-title" placeholder="e.g. Tony Elumelu Foundation Grant 2027"
+        style="width:100%;background:#111;border:1px solid #2a2a2a;color:#f5f5f5;border-radius:0.5rem;padding:0.75rem 1rem;font-size:0.875rem;outline:none;"
+        oninput="autoSave()" onfocus="this.style.borderColor='#c9a961'" onblur="this.style.borderColor='#2a2a2a'" />
+    </div>
+    <div>
+      <label>Deadline (optional)</label>
+      <input type="date" id="grant-deadline"
+        style="width:100%;background:#111;border:1px solid #2a2a2a;color:#f5f5f5;border-radius:0.5rem;padding:0.75rem 1rem;font-size:0.875rem;outline:none;"
+        oninput="autoSave()" onfocus="this.style.borderColor='#c9a961'" onblur="this.style.borderColor='#2a2a2a'" />
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+  <p class="text-xs text-[#9a9a9a] mb-6" id="progress-label">0 of 6 sections completed</p>
+
+  <!-- Section 1 -->
+  <div class="section-card">
+    <div class="section-num">Section 1 of 6</div>
+    <h2 class="font-serif text-2xl mt-1 mb-3">Organisation Overview</h2>
+    <div class="prompt-box">
+      <strong>Write about your organisation:</strong><br/>
+      • What is the name of your organisation and when was it founded?<br/>
+      • What is your mission or main purpose?<br/>
+      • How many people does your organisation serve or employ?<br/>
+      • What sector do you operate in and in which country?
+    </div>
+    <label>Your answer</label>
+    <textarea id="s1" placeholder="Describe your organisation here…" oninput="autoSave();updateProgress()"></textarea>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="section-card">
+    <div class="section-num">Section 2 of 6</div>
+    <h2 class="font-serif text-2xl mt-1 mb-3">Problem Statement</h2>
+    <div class="prompt-box">
+      <strong>Describe the problem you are solving:</strong><br/>
+      • What specific problem or challenge does your community or sector face?<br/>
+      • Who is most affected by this problem?<br/>
+      • What evidence or data shows this problem exists?<br/>
+      • Why has this problem not been solved yet?
+    </div>
+    <label>Your answer</label>
+    <textarea id="s2" placeholder="Describe the problem here…" oninput="autoSave();updateProgress()"></textarea>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="section-card">
+    <div class="section-num">Section 3 of 6</div>
+    <h2 class="font-serif text-2xl mt-1 mb-3">Your Solution</h2>
+    <div class="prompt-box">
+      <strong>Explain your solution:</strong><br/>
+      • What product, service or programme do you offer to solve this problem?<br/>
+      • How does your solution work step by step?<br/>
+      • What makes your approach different from what already exists?<br/>
+      • How long have you been running this solution?
+    </div>
+    <label>Your answer</label>
+    <textarea id="s3" placeholder="Describe your solution here…" oninput="autoSave();updateProgress()"></textarea>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="section-card">
+    <div class="section-num">Section 4 of 6</div>
+    <h2 class="font-serif text-2xl mt-1 mb-3">Impact & Results</h2>
+    <div class="prompt-box">
+      <strong>Share your impact so far:</strong><br/>
+      • How many people have you helped or reached so far?<br/>
+      • What specific results or outcomes have you achieved?<br/>
+      • Do you have any numbers, statistics or testimonials?<br/>
+      • What impact do you expect to achieve with this grant funding?
+    </div>
+    <label>Your answer</label>
+    <textarea id="s4" placeholder="Describe your impact here…" oninput="autoSave();updateProgress()"></textarea>
+  </div>
+
+  <!-- Section 5 -->
+  <div class="section-card">
+    <div class="section-num">Section 5 of 6</div>
+    <h2 class="font-serif text-2xl mt-1 mb-3">Budget Plan</h2>
+    <div class="prompt-box">
+      <strong>Explain how you will use the funds:</strong><br/>
+      • How much funding are you requesting in total?<br/>
+      • List the main budget items (e.g. equipment, salaries, training, marketing).<br/>
+      • What percentage goes to each area?<br/>
+      • Do you have any other funding sources or co-funding?
+    </div>
+    <label>Your answer</label>
+    <textarea id="s5" placeholder="Describe your budget plan here…" oninput="autoSave();updateProgress()"></textarea>
+  </div>
+
+  <!-- Section 6 -->
+  <div class="section-card">
+    <div class="section-num">Section 6 of 6</div>
+    <h2 class="font-serif text-2xl mt-1 mb-3">Team & Capacity</h2>
+    <div class="prompt-box">
+      <strong>Tell us about your team:</strong><br/>
+      • Who are the key people leading this project?<br/>
+      • What relevant experience or qualifications do they have?<br/>
+      • Do you have any partnerships or support from other organisations?<br/>
+      • Why is your team the right one to execute this project?
+    </div>
+    <label>Your answer</label>
+    <textarea id="s6" placeholder="Describe your team here…" oninput="autoSave();updateProgress()"></textarea>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="flex gap-3 flex-wrap mt-6">
+    <button class="btn-gold" onclick="saveDraft()">💾 Save Draft</button>
+    <button class="btn-outline" onclick="clearDraft()">Clear Draft</button>
+    <a href="progress.html" style="background:transparent;border:1px solid #c9a961;color:#c9a961;padding:0.75rem 1.5rem;border-radius:0.5rem;font-size:0.9rem;text-decoration:none;font-weight:600;">View Progress Report →</a>
+  </div>
+
+</section>
+
+<div class="saved-toast" id="toast">✓ Draft saved</div>
+
+<footer class="mt-24 border-t border-[#2a2a2a]">
+  <div class="mx-auto grid max-w-7xl gap-6 px-6 py-10 text-sm text-[#9a9a9a] md:grid-cols-2">
+    <div>
+      <div class="font-serif text-lg text-white">Grant<span class="text-gold">Agent</span> Africa</div>
+      <p class="mt-2 max-w-md">Verified grants and jobs for East African startups.</p>
+    </div>
+    <div class="md:text-right">© 2026 GrantAgent Africa.</div>
+  </div>
+</footer>
+
+<script>
+const DRAFT_KEY = 'ga_draft';
+
+(function() {
+  const s = localStorage.getItem('ga_session');
+  if (!s) { window.location.href = 'login.html'; return; }
+  const user = JSON.parse(s);
+  document.addEventListener('DOMContentLoaded', function() {
+    const nav = document.getElementById('main-nav');
+    if (nav && user.org) {
+      const badge = document.createElement('span');
+      badge.style.cssText = 'font-size:0.75rem;color:#c9a961;border:1px solid #2a2a2a;padding:0.3rem 0.75rem;border-radius:9999px;';
+      badge.textContent = '👋 ' + user.org;
+      nav.appendChild(badge);
+    }
+  });
+  loadDraft();
+})();
+
+function signOut() {
+  localStorage.removeItem('ga_session');
+  window.location.href = 'login.html';
+}
+
+function getDraft() {
+  try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}'); } catch { return {}; }
+}
+
+function loadDraft() {
+  const d = getDraft();
+  if (d.grantTitle) document.getElementById('grant-title').value = d.grantTitle;
+  if (d.grantDeadline) document.getElementById('grant-deadline').value = d.grantDeadline;
+  for (let i = 1; i <= 6; i++) {
+    if (d['s' + i]) document.getElementById('s' + i).value = d['s' + i];
+  }
+  updateProgress();
+}
+
+function autoSave() {
+  const draft = {
+    grantTitle: document.getElementById('grant-title').value,
+    grantDeadline: document.getElementById('grant-deadline').value,
+    savedAt: new Date().toISOString()
+  };
+  for (let i = 1; i <= 6; i++) {
+    draft['s' + i] = document.getElementById('s' + i).value;
+  }
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+}
+
+function saveDraft() {
+  autoSave();
+  const toast = document.getElementById('toast');
+  toast.style.display = 'block';
+  setTimeout(() => { toast.style.display = 'none'; }, 2500);
+}
+
+function clearDraft() {
+  if (!confirm('Are you sure you want to clear your draft? This cannot be undone.')) return;
+  localStorage.removeItem(DRAFT_KEY);
+  document.getElementById('grant-title').value = '';
+  document.getElementById('grant-deadline').value = '';
+  for (let i = 1; i <= 6; i++) document.getElementById('s' + i).value = '';
+  updateProgress();
+}
+
+function updateProgress() {
+  let filled = 0;
+  for (let i = 1; i <= 6; i++) {
+    if (document.getElementById('s' + i).value.trim().length > 20) filled++;
+  }
+  const pct = Math.round((filled / 6) * 100);
+  document.getElementById('progress').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = filled + ' of 6 sections completed';
+}
+</script>
+
+</body>
+</html>
