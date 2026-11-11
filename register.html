@@ -4,80 +4,179 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Register your organisation — GrantAgent Africa</title>
-<meta name="description" content="Free registration. Get email alerts for grants and jobs matched to your sector and country." />
-<meta property="og:title" content="Register your organisation — GrantAgent Africa" />
-<meta property="og:description" content="Free registration. Get email alerts for grants and jobs matched to your sector and country." />
 <link rel="icon" href="favicon.svg" />
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root { --gold:#c9a961; --bg:#0f0f0f; --card:#1a1a1a; --border:#2a2a2a; --muted:#9a9a9a; --fg:#f5f5f5; }
   body { font-family: 'Inter', sans-serif; background:var(--bg); color:var(--fg); }
   .font-serif { font-family: 'Fraunces', serif; }
   .text-gold { color: var(--gold); }
-  .bg-gold { background: var(--gold); }
-  .border-border { border-color: var(--border); }
   .bg-card { background: var(--card); }
   .text-muted { color: var(--muted); }
   .btn-primary { background: var(--gold); color:#1a1a1a; }
   .btn-primary:hover { opacity:.9; }
+  input, select { background: #111; border: 1px solid var(--border); color: var(--fg); border-radius: 0.5rem; padding: 0.65rem 0.9rem; width: 100%; font-size: 0.9rem; }
+  input:focus, select:focus { outline: 2px solid var(--gold); border-color: var(--gold); }
+  label { font-size: 0.8rem; color: var(--muted); display: block; margin-bottom: 0.4rem; }
+  .field { margin-bottom: 1.2rem; }
+  .err { color: #f87171; font-size: 0.8rem; margin-top: 0.75rem; display: none; }
 </style>
 </head>
 <body class="min-h-screen">
 
-<header class="sticky top-0 z-40 border-b border-border bg-black/70 backdrop-blur">
+<header class="sticky top-0 z-40 border-b border-[#2a2a2a] bg-black/70 backdrop-blur">
   <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
     <a href="index.html" class="font-serif text-xl font-semibold">Grant<span class="text-gold">Agent</span> Africa</a>
-    <nav class="hidden md:flex items-center gap-8 text-sm">
-      <a href="index.html#how" class="text-muted hover:text-white">How it works</a>
-      <a href="opportunities.html" class="text-muted hover:text-white">Opportunities</a>
-      <a href="register.html" class="text-muted hover:text-white">Register</a>
-      <a href="login.html" class="text-muted hover:text-white">Login</a>
+    <nav class="hidden md:flex items-center gap-8 text-sm" id="nav">
+      <a href="index.html#how" class="text-[#9a9a9a] hover:text-white">How it works</a>
+      <a href="opportunities.html" class="text-[#9a9a9a] hover:text-white">Opportunities</a>
+      <a href="login.html" class="text-[#9a9a9a] hover:text-white">Login</a>
     </nav>
-    <a href="register.html" class="btn-primary rounded-md px-4 py-2 text-sm font-medium">Register free</a>
+    <button onclick="signOut()" id="signout-btn" style="display:none;background:transparent;border:1px solid #2a2a2a;color:#9a9a9a;padding:0.4rem 1rem;border-radius:0.375rem;font-size:0.875rem;cursor:pointer;">Sign Out</button>
   </div>
 </header>
 
-<section class="border-b border-border">
+<section class="border-b border-[#2a2a2a]">
   <div class="mx-auto max-w-3xl px-6 py-12 text-center">
     <p class="text-xs uppercase tracking-[0.22em] text-gold">Get started — free</p>
     <h1 class="mt-3 font-serif text-4xl md:text-5xl">Register your organisation</h1>
-    <p class="mt-3 text-muted">Complete the short form below. You'll get a confirmation email and start receiving sector-matched grant and job alerts.</p>
+    <p class="mt-3 text-[#9a9a9a]">Fill in your details below to get sector-matched grant and job alerts.</p>
   </div>
-</section>
-<section class="mx-auto max-w-3xl px-6 py-10">
-  <div class="overflow-hidden rounded-2xl border border-border bg-card">
-    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdhMGp3pU8xDWmc2NNScqedYnpXv6xa-Zf4xZtWIYHuRaSPfQ/viewform?embedded=true" title="GrantAgent Africa registration form" width="100%" height="1600" frameborder="0" marginheight="0" marginwidth="0" class="w-full bg-white">Loading…</iframe>
-  </div>
-  <p class="mt-4 text-center text-xs text-muted">Trouble loading? <a class="underline" href="https://docs.google.com/forms/d/e/1FAIpQLSdhMGp3pU8xDWmc2NNScqedYnpXv6xa-Zf4xZtWIYHuRaSPfQ/viewform" target="_blank" rel="noopener">Open the form in a new tab</a>.</p>
 </section>
 
-<footer class="mt-24 border-t border-border">
-  <div class="mx-auto grid max-w-7xl gap-6 px-6 py-10 text-sm text-muted md:grid-cols-2">
+<section class="mx-auto max-w-xl px-6 py-10">
+  <div class="rounded-2xl border border-[#2a2a2a] bg-card p-8">
+    <div class="field">
+      <label>Organisation name *</label>
+      <input id="org" type="text" placeholder="e.g. Greenlight Solutions" />
+    </div>
+    <div class="field">
+      <label>Email address *</label>
+      <input id="email" type="email" placeholder="you@example.com" />
+    </div>
+    <div class="field">
+      <label>Country *</label>
+      <select id="country">
+        <option value="">Select country</option>
+        <option>Kenya</option>
+        <option>Uganda</option>
+        <option>Tanzania</option>
+        <option>Rwanda</option>
+        <option>Ethiopia</option>
+        <option>Nigeria</option>
+        <option>Ghana</option>
+        <option>South Africa</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Sector *</label>
+      <select id="sector">
+        <option value="">Select sector</option>
+        <option>Agritech</option>
+        <option>Fintech</option>
+        <option>Health</option>
+        <option>Education</option>
+        <option>Climate & Energy</option>
+        <option>NGO / Non-profit</option>
+        <option>Technology</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Stage of operation *</label>
+      <select id="stage">
+        <option value="">Select stage</option>
+        <option>Idea / Pre-revenue</option>
+        <option>Early stage (0–2 years)</option>
+        <option>Growth stage (2–5 years)</option>
+        <option>Established (5+ years)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Password *</label>
+      <input id="password" type="password" placeholder="Create a password" />
+    </div>
+
+    <div id="err" class="err"></div>
+
+    <button onclick="register()" class="btn-primary w-full rounded-lg py-3 font-semibold mt-2">Register free →</button>
+
+    <p class="mt-4 text-center text-xs text-[#9a9a9a]">Already have an account? <a href="login.html" class="text-gold underline">Sign in</a></p>
+  </div>
+</section>
+
+<footer class="mt-24 border-t border-[#2a2a2a]">
+  <div class="mx-auto grid max-w-7xl gap-6 px-6 py-10 text-sm text-[#9a9a9a] md:grid-cols-2">
     <div>
       <div class="font-serif text-lg text-white">Grant<span class="text-gold">Agent</span> Africa</div>
-      <p class="mt-2 max-w-md">Verified grants and jobs for East African startups. Every opportunity links to its original source.</p>
+      <p class="mt-2 max-w-md">Verified grants and jobs for East African startups.</p>
     </div>
-    <div class="md:text-right">© 2026 GrantAgent Africa. All opportunities link to original sources.</div>
+    <div class="md:text-right">© 2026 GrantAgent Africa.</div>
   </div>
 </footer>
 
 <script>
+const SESSION_KEY = 'ga_session';
+const USERS_KEY = 'ga_users';
+
+function register() {
+  const org      = document.getElementById('org').value.trim();
+  const email    = document.getElementById('email').value.trim();
+  const country  = document.getElementById('country').value;
+  const sector   = document.getElementById('sector').value;
+  const stage    = document.getElementById('stage').value;
+  const password = document.getElementById('password').value;
+  const err      = document.getElementById('err');
+
+  err.style.display = 'none';
+
+  if (!org || !email || !country || !sector || !stage || !password) {
+    err.textContent = 'Please fill in all fields.';
+    err.style.display = 'block';
+    return;
+  }
+  if (password.length < 6) {
+    err.textContent = 'Password must be at least 6 characters.';
+    err.style.display = 'block';
+    return;
+  }
+
+  const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
+  if (users[email]) {
+    err.textContent = 'An account with this email already exists. Please sign in.';
+    err.style.display = 'block';
+    return;
+  }
+
+  users[email] = { org, country, sector, stage, password: btoa(password) };
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ email, org, country, sector, stage, time: Date.now() }));
+
+  window.location.href = 'index.html';
+}
+
+function signOut() {
+  localStorage.removeItem(SESSION_KEY);
+  window.location.href = 'login.html';
+}
+
 (function() {
-  const s = sessionStorage.getItem('ga_session');
-  if (!s) { window.location.href = 'login.html'; return; }
-  const user = JSON.parse(s);
-  document.addEventListener('DOMContentLoaded', function() {
-    const nav = document.querySelector('nav');
-    if (nav && user.org) {
-      const badge = document.createElement('span');
-      badge.style.cssText = 'font-size:0.75rem;color:#c9a961;border:1px solid #2a2a2a;padding:0.3rem 0.75rem;border-radius:9999px;';
-      badge.textContent = '👋 ' + user.org;
-      nav.appendChild(badge);
-    }
-  });
+  const s = localStorage.getItem(SESSION_KEY);
+  if (s) {
+    const user = JSON.parse(s);
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('signout-btn').style.display = 'block';
+      const nav = document.getElementById('nav');
+      if (nav && user.org) {
+        const badge = document.createElement('span');
+        badge.style.cssText = 'font-size:0.75rem;color:#c9a961;border:1px solid #2a2a2a;padding:0.3rem 0.75rem;border-radius:9999px;';
+        badge.textContent = '👋 ' + user.org;
+        nav.appendChild(badge);
+      }
+    });
+  }
 })();
 </script>
 
